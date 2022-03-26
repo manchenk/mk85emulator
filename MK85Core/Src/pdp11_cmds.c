@@ -29,9 +29,9 @@ static uint8_t pdp11_cpu_get_offset(uint16_t op_code) {
     return (op_code << 1) & 0x7e;
 }
 
-static uint8_t __attribute__((unused)) pdp11_cpu_get_trap(uint16_t op_code) {
-    return op_code & 0xff;
-}
+//static uint8_t __attribute__((unused)) pdp11_cpu_get_trap(uint16_t op_code) {
+//    return op_code & 0xff;
+//}
 
 static uint8_t pdp11_cpu_get_immediate(uint16_t op_code) {
     return op_code & 0x0f;
@@ -724,35 +724,35 @@ void pdp11_cpu_command_div(pdp11_cpu_t *cpu, uint16_t op_code)       // 071RSS
     }
 }
 
-static uint16_t __attribute__((unused)) shift_left_word(pdp11_cpu_t *cpu,
-        uint16_t arg, uint8_t n) {
-    uint32_t tmp = arg;
-    int i;
-    for (i = 0; i < n; i++) {
-        tmp <<= 1;
-    }
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = tmp & 0x10000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(tmp & 0xffff);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
-    return arg;
-}
-
-static uint16_t __attribute__((unused)) shift_right_word(pdp11_cpu_t *cpu,
-        uint16_t arg, uint8_t n) {
-    bool_t c = FALSE;
-    uint16_t tmp = arg;
-    int i;
-    for (i = 0; i < n; i++) {
-        c = tmp & 1;
-        tmp >>= 1;
-    }
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = c;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !tmp;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
-    return arg;
-}
+//static uint16_t __attribute__((unused)) shift_left_word(pdp11_cpu_t *cpu,
+//        uint16_t arg, uint8_t n) {
+//    uint32_t tmp = arg;
+//    int i;
+//    for (i = 0; i < n; i++) {
+//        tmp <<= 1;
+//    }
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = tmp & 0x10000;
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(tmp & 0xffff);
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
+//    return arg;
+//}
+//
+//static uint16_t __attribute__((unused)) shift_right_word(pdp11_cpu_t *cpu,
+//        uint16_t arg, uint8_t n) {
+//    bool_t c = FALSE;
+//    uint16_t tmp = arg;
+//    int i;
+//    for (i = 0; i < n; i++) {
+//        c = tmp & 1;
+//        tmp >>= 1;
+//    }
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = c;
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !tmp;
+//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
+//    return arg;
+//}
 
 static uint32_t shift_left_dword(pdp11_cpu_t *cpu, uint32_t arg, uint8_t n) {
     bool_t c = FALSE;
