@@ -14,3 +14,6 @@ Elektronika MK-85 emulator on STM32F429I-disco board
 
 
 ![mk85-display](https://user-images.githubusercontent.com/6017384/160229789-6f42d476-02d0-49c7-b79d-7a2c6e62a9c6.jpg)
+
+Проект создан в среде STM32CubeIDE v1.90.
+
