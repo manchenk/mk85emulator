@@ -42,12 +42,12 @@ void pdp11_cpu_command_halt(struct pdp11_cpu *cpu, uint16_t op_code)   // 000001
     uint16_t addr = 0x0078;
     PDP11_CPU_CPC(cpu) = PDP11_CPU_PC(cpu);
     PDP11_CPU_CPS(cpu) = pdp11_cpu_get_psw(cpu);
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_H))
+    if (PDP11_CPU_FLAG_H(cpu))
         addr += PDP11_CPU_SEL(cpu) & 0xff00;
     PDP11_CPU_PC(cpu) = pdp11_bus_read_word(cpu->bus, addr) & 0xfffe;
     addr += 2;
     pdp11_cpu_set_psw(cpu, pdp11_bus_read_word(cpu->bus, addr));
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_H) = TRUE;
+    PDP11_CPU_FLAG_H(cpu) = TRUE;
 }
 
 void pdp11_cpu_command_wait(pdp11_cpu_t *cpu, uint16_t op_code)      // 000001
@@ -62,7 +62,7 @@ void pdp11_cpu_command_rti(pdp11_cpu_t *cpu, uint16_t op_code)       // 000002
     pdp11_cpu_set_psw(cpu, PDP11_CPU_SP(cpu));
     PDP11_CPU_SP(cpu) += 2;
     if (pc >= 0xe000)
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_H) = TRUE;
+        PDP11_CPU_FLAG_H(cpu) = TRUE;
 }
 
 void pdp11_cpu_command_bpt(pdp11_cpu_t *cpu, uint16_t op_code)       // 000003
@@ -90,7 +90,7 @@ void pdp11_cpu_command_jmp(pdp11_cpu_t *cpu, uint16_t op_code)       // 0001DD
 {
     int dst_reg = op_code & 7;
     pdp11_cpu_addressing_t dst_mode = (op_code >> 3) & 7;
-    uint16_t addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+    uint16_t addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
     if (dst_mode == PDP11_ADDRESS_DIRECT)
         PDP11_CPU_VECTOR(cpu) = 0x0004;
     else
@@ -128,16 +128,16 @@ void pdp11_cpu_command_swab(pdp11_cpu_t *cpu, uint16_t op_code)      // 0003DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint8_t lo = d & 0xff;
     uint8_t hi = (d >> 8) & 0xff;
     uint16_t r = (lo << 8) | hi;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(r & 0xff);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_C(cpu) = FALSE;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !(r & 0xff);
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -153,43 +153,43 @@ void pdp11_cpu_command_br(pdp11_cpu_t *cpu, uint16_t op_code)        // 0004XX
 
 void pdp11_cpu_command_bne(pdp11_cpu_t *cpu, uint16_t op_code)       // 0010XX
 {
-    if (!(PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z)))
+    if (!(PDP11_CPU_FLAG_Z(cpu)))
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_beq(pdp11_cpu_t *cpu, uint16_t op_code)       // 0014XX
 {
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z))
+    if (PDP11_CPU_FLAG_Z(cpu))
         pdp11_cpu_command_br(cpu, op_code);
 
 }
 
 void pdp11_cpu_command_bge(pdp11_cpu_t *cpu, uint16_t op_code)       // 0020XX
 {
-    bool_t n = PDP11_CPU_FLAG(cpu, PDP11_FLAG_N);
-    bool_t v = PDP11_CPU_FLAG(cpu, PDP11_FLAG_V);
+    bool_t n = PDP11_CPU_FLAG_N(cpu);
+    bool_t v = PDP11_CPU_FLAG_V(cpu);
     if (v == n)
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_blt(pdp11_cpu_t *cpu, uint16_t op_code)       // 0024XX
 {
-    bool_t n = PDP11_CPU_FLAG(cpu, PDP11_FLAG_N);
-    bool_t v = PDP11_CPU_FLAG(cpu, PDP11_FLAG_V);
+    bool_t n = PDP11_CPU_FLAG_N(cpu);
+    bool_t v = PDP11_CPU_FLAG_V(cpu);
     if (v != n)
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_bgt(pdp11_cpu_t *cpu, uint16_t op_code)       // 0030XX
 {
-    if (!(PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z)))
+    if (!(PDP11_CPU_FLAG_Z(cpu)))
         pdp11_cpu_command_bge(cpu, op_code);
 
 }
 
 void pdp11_cpu_command_ble(pdp11_cpu_t *cpu, uint16_t op_code)       // 0034XX
 {
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z))
+    if (PDP11_CPU_FLAG_Z(cpu))
         pdp11_cpu_command_br(cpu, op_code);
     else
         pdp11_cpu_command_blt(cpu, op_code);
@@ -204,9 +204,8 @@ void pdp11_cpu_command_jsr(pdp11_cpu_t *cpu, uint16_t op_code)       // 004RDD
     if (dst_mode == PDP11_ADDRESS_DIRECT)
         PDP11_CPU_VECTOR(cpu) = 0x0004;
     else {
-        uint16_t sub_addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
-        pdp11_cpu_write_word(cpu, 6, PDP11_ADDRESS_AUTODECREMENT,
-                PDP11_CPU_R(cpu, src_reg));
+        uint16_t sub_addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
+        pdp11_cpu_write_word(cpu, 6, PDP11_ADDRESS_AUTODECREMENT, PDP11_CPU_R(cpu, src_reg));
         PDP11_CPU_R(cpu, src_reg) = PDP11_CPU_PC(cpu);
         PDP11_CPU_PC(cpu) = sub_addr;
     }
@@ -216,10 +215,10 @@ void pdp11_cpu_command_clr(pdp11_cpu_t *cpu, uint16_t op_code)       // 0050DD
 {
     int dst_reg = op_code & 7;
     pdp11_cpu_addressing_t dst_mode = (op_code >> 3) & 7;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = TRUE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = FALSE;
+    PDP11_CPU_FLAG_C(cpu) = FALSE;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = TRUE;
+    PDP11_CPU_FLAG_N(cpu) = FALSE;
     pdp11_cpu_write_word(cpu, dst_reg, dst_mode, 0);
 
 }
@@ -234,14 +233,14 @@ void pdp11_cpu_command_com(pdp11_cpu_t *cpu, uint16_t op_code)       // 0051DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = ~d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = TRUE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = TRUE;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -260,13 +259,13 @@ void pdp11_cpu_command_inc(pdp11_cpu_t *cpu, uint16_t op_code)       // 0052DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = d + 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x7fff;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = d == 0x7fff;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -285,13 +284,13 @@ void pdp11_cpu_command_dec(pdp11_cpu_t *cpu, uint16_t op_code)       // 0053DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = d - 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = d == 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -310,14 +309,14 @@ void pdp11_cpu_command_neg(pdp11_cpu_t *cpu, uint16_t op_code)       // 0054DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = -d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = r;
+    PDP11_CPU_FLAG_V(cpu) = d == 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -337,22 +336,22 @@ void pdp11_cpu_command_adc(pdp11_cpu_t *cpu, uint16_t op_code)       // 0055DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C)) {
+    if (PDP11_CPU_FLAG_C(cpu)) {
         r = d + 1;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d == 0xffff;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x7fff;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+        PDP11_CPU_FLAG_C(cpu) = d == 0xffff;
+        PDP11_CPU_FLAG_V(cpu) = d == 0x7fff;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     }
     else {
         r = d;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+        PDP11_CPU_FLAG_C(cpu) = FALSE;
+        PDP11_CPU_FLAG_V(cpu) = FALSE;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     }
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
@@ -373,22 +372,22 @@ void pdp11_cpu_command_sbc(pdp11_cpu_t *cpu, uint16_t op_code)       // 0056DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C)) {
+    if (PDP11_CPU_FLAG_C(cpu)) {
         r = d - 1;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x8000;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+        PDP11_CPU_FLAG_C(cpu) = d;
+        PDP11_CPU_FLAG_V(cpu) = d == 0x8000;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     }
     else {
         r = d;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d = 0x8000;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+        PDP11_CPU_FLAG_C(cpu) = FALSE;
+        PDP11_CPU_FLAG_V(cpu) = d = 0x8000;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     }
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
@@ -408,13 +407,13 @@ void pdp11_cpu_command_tst(pdp11_cpu_t *cpu, uint16_t op_code)       // 0057DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = d & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = FALSE;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !d;
+    PDP11_CPU_FLAG_N(cpu) = d & 0x8000;
 }
 
 void pdp11_cpu_command_ror(pdp11_cpu_t *cpu, uint16_t op_code)       // 0060DD
@@ -427,18 +426,18 @@ void pdp11_cpu_command_ror(pdp11_cpu_t *cpu, uint16_t op_code)       // 0060DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = d >> 1;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C))
+    if (PDP11_CPU_FLAG_C(cpu))
         r |= 0x8000;
     else
         r &= ~0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r & 0x8000) ^ (d & 1 ? 0x8000 : 0);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = d & 1;
+    PDP11_CPU_FLAG_V(cpu) = (r & 0x8000) ^ (d & 1 ? 0x8000 : 0);
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -457,16 +456,16 @@ void pdp11_cpu_command_rol(pdp11_cpu_t *cpu, uint16_t op_code)       // 0061DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = d << 1;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C))
+    if (PDP11_CPU_FLAG_C(cpu))
         r |= 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r ^ d) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = d & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = (r ^ d) & 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -485,16 +484,16 @@ void pdp11_cpu_command_asr(pdp11_cpu_t *cpu, uint16_t op_code)       // 0062DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = d >> 1;
     if (d & 0x8000)
         r |= 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r & 0x8000) ^ (d & 1 ? 0x8000 : 0);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = d & 1;
+    PDP11_CPU_FLAG_V(cpu) = (r & 0x8000) ^ (d & 1 ? 0x8000 : 0);
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -513,14 +512,14 @@ void pdp11_cpu_command_asl(pdp11_cpu_t *cpu, uint16_t op_code)       // 0063DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = d << 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r ^ d) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = d & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = (r ^ d) & 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -533,8 +532,7 @@ void pdp11_cpu_command_mark(pdp11_cpu_t *cpu, uint16_t op_code)      // 006400
 {
     PDP11_CPU_SP(cpu) = PDP11_CPU_PC(cpu) + pdp11_cpu_get_offset(op_code);
     PDP11_CPU_PC(cpu) = PDP11_CPU_R(cpu, 5) & ~1;
-    uint16_t addr = pdp11_cpu_get_address(cpu, PDP11_CPU_SP_INDEX,
-            PDP11_ADDRESS_AUTOINCREMENT, TRUE);
+    uint16_t addr = pdp11_cpu_get_address_word(cpu, PDP11_CPU_SP_INDEX, PDP11_ADDRESS_AUTOINCREMENT);
     PDP11_CPU_R(cpu, 5) = pdp11_bus_read_word(cpu->bus, addr);
 }
 
@@ -542,12 +540,12 @@ void pdp11_cpu_command_sxt(pdp11_cpu_t *cpu, uint16_t op_code)       // 0067DD
 {
     int dst_reg = op_code & 7;
     pdp11_cpu_addressing_t dst_mode = (op_code >> 3) & 7;
-    uint16_t r = PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) ? 0xffff : 0x0000;
+    uint16_t r = PDP11_CPU_FLAG_N(cpu) ? 0xffff : 0x0000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
     else {
-        uint16_t addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        uint16_t addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         pdp11_bus_write_word(cpu->bus, addr, r);
     }
 }
@@ -560,9 +558,9 @@ void pdp11_cpu_command_mov(pdp11_cpu_t *cpu, uint16_t op_code)       // 01SSDD
     pdp11_cpu_addressing_t src_mode = (op_code >> 9) & 7;
     uint16_t s = pdp11_cpu_read_word(cpu, src_reg, src_mode);
     uint16_t d = s;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = d & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !d;
+    PDP11_CPU_FLAG_N(cpu) = d & 0x8000;
     pdp11_cpu_write_word(cpu, dst_reg, dst_mode, d);
 }
 
@@ -575,10 +573,10 @@ void pdp11_cpu_command_cmp(pdp11_cpu_t *cpu, uint16_t op_code)       // 02SSDD
     uint16_t s = pdp11_cpu_read_word(cpu, src_reg, src_mode);
     uint16_t d = pdp11_cpu_read_word(cpu, dst_reg, dst_mode);
     uint16_t r = s - d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = s < d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (s ^ d) & (r ^ ~d) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = s < d;
+    PDP11_CPU_FLAG_V(cpu) = (s ^ d) & (r ^ ~d) & 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
 }
 
 void pdp11_cpu_command_bit(pdp11_cpu_t *cpu, uint16_t op_code)       // 03SSDD
@@ -590,9 +588,9 @@ void pdp11_cpu_command_bit(pdp11_cpu_t *cpu, uint16_t op_code)       // 03SSDD
     uint16_t s = pdp11_cpu_read_word(cpu, src_reg, src_mode);
     uint16_t d = pdp11_cpu_read_word(cpu, dst_reg, dst_mode);
     uint16_t r = s & d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
 }
 
 void pdp11_cpu_command_bic(pdp11_cpu_t *cpu, uint16_t op_code)       // 04SSDD
@@ -608,13 +606,13 @@ void pdp11_cpu_command_bic(pdp11_cpu_t *cpu, uint16_t op_code)       // 04SSDD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = ~s & d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -636,13 +634,13 @@ void pdp11_cpu_command_bis(pdp11_cpu_t *cpu, uint16_t op_code)       // 05SSDD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = s | d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -664,14 +662,16 @@ void pdp11_cpu_command_add(pdp11_cpu_t *cpu, uint16_t op_code)       // 06SSDD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
+    asm volatile("nop");
     uint32_t r = s + d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = r > 0xffff;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (~s ^ d) & (r ^ s) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(r & 0xffff);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = r > 0xffff;
+    PDP11_CPU_FLAG_V(cpu) = (~s ^ d) & (r ^ s) & 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !(r & 0xffff);
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
+    asm volatile("nop");
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -688,10 +688,10 @@ void pdp11_cpu_command_mul(pdp11_cpu_t *cpu, uint16_t op_code)       // 070RSS
     uint16_t s = PDP11_CPU_R(cpu, src_reg);
     uint16_t d = pdp11_cpu_read_word(cpu, dst_reg, dst_mode);
     uint32_t r = s * d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = !((r > 0x7fff) || (r <= -0x8000));
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = !((r > 0x7fff) || (r <= -0x8000));
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (src_reg & 1) {
         PDP11_CPU_R(cpu, src_reg) = r;
     }
@@ -712,15 +712,15 @@ void pdp11_cpu_command_div(pdp11_cpu_t *cpu, uint16_t op_code)       // 071RSS
     if (d != 0) {
         int32_t r0 = s / d;
         int32_t r1 = s % d;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r0 > 0x7fff) || (r0 <= -0x8000);
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r0;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r0 & 0x8000;
+        PDP11_CPU_FLAG_V(cpu) = (r0 > 0x7fff) || (r0 <= -0x8000);
+        PDP11_CPU_FLAG_Z(cpu) = !r0;
+        PDP11_CPU_FLAG_N(cpu) = r0 & 0x8000;
         PDP11_CPU_R(cpu, src_reg) = r0;
         PDP11_CPU_R(cpu, src_reg | 1) = r1;
     }
     else {
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = TRUE;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = TRUE;
+        PDP11_CPU_FLAG_C(cpu) = TRUE;
+        PDP11_CPU_FLAG_V(cpu) = TRUE;
     }
 }
 
@@ -731,10 +731,10 @@ void pdp11_cpu_command_div(pdp11_cpu_t *cpu, uint16_t op_code)       // 071RSS
 //    for (i = 0; i < n; i++) {
 //        tmp <<= 1;
 //    }
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = tmp & 0x10000;
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(tmp & 0xffff);
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
+//    PDP11_CPU_FLAG_C(cpu) = tmp & 0x10000;
+//    PDP11_CPU_FLAG_V(cpu) = (tmp ^ arg) & 0x8000;
+//    PDP11_CPU_FLAG_Z(cpu) = !(tmp & 0xffff);
+//    PDP11_CPU_FLAG_N(cpu) = tmp & 0x8000;
 //    return arg;
 //}
 //
@@ -747,10 +747,10 @@ void pdp11_cpu_command_div(pdp11_cpu_t *cpu, uint16_t op_code)       // 071RSS
 //        c = tmp & 1;
 //        tmp >>= 1;
 //    }
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = c;
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !tmp;
-//    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
+//    PDP11_CPU_FLAG_C(cpu) = c;
+//    PDP11_CPU_FLAG_V(cpu) = (tmp ^ arg) & 0x8000;
+//    PDP11_CPU_FLAG_Z(cpu) = !tmp;
+//    PDP11_CPU_FLAG_N(cpu) = tmp & 0x8000;
 //    return arg;
 //}
 
@@ -762,10 +762,10 @@ static uint32_t shift_left_dword(pdp11_cpu_t *cpu, uint32_t arg, uint8_t n) {
         c = tmp & 0x80000000;
         tmp <<= 1;
     }
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = c;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !tmp;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = c;
+    PDP11_CPU_FLAG_V(cpu) = (tmp ^ arg) & 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !tmp;
+    PDP11_CPU_FLAG_N(cpu) = tmp & 0x8000;
     return arg;
 }
 
@@ -777,10 +777,10 @@ static uint32_t shift_right_dword(pdp11_cpu_t *cpu, uint32_t arg, uint8_t n) {
         c = tmp & 1;
         tmp >>= 1;
     }
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = c;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (tmp ^ arg) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !tmp;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = tmp & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = c;
+    PDP11_CPU_FLAG_V(cpu) = (tmp ^ arg) & 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !tmp;
+    PDP11_CPU_FLAG_N(cpu) = tmp & 0x8000;
     return arg;
 }
 
@@ -834,13 +834,13 @@ void pdp11_cpu_command_xor(pdp11_cpu_t *cpu, uint16_t op_code)       // 074RDD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = s ^ d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
@@ -852,7 +852,7 @@ void pdp11_cpu_command_xor(pdp11_cpu_t *cpu, uint16_t op_code)       // 074RDD
 void pdp11_cpu_command_fadd(pdp11_cpu_t *cpu, uint16_t op_code)       // 07500R
 {
     if ((PDP11_CPU_SEL(cpu) & 0x0080) == 0)
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_H) = TRUE;
+        PDP11_CPU_FLAG_H(cpu) = TRUE;
     else
         PDP11_CPU_VECTOR(cpu) = 0x0008;
 }
@@ -860,7 +860,7 @@ void pdp11_cpu_command_fadd(pdp11_cpu_t *cpu, uint16_t op_code)       // 07500R
 void pdp11_cpu_command_fsub(pdp11_cpu_t *cpu, uint16_t op_code)       // 07501R
 {
     if ((PDP11_CPU_SEL(cpu) & 0x0080) == 0)
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_H) = TRUE;
+        PDP11_CPU_FLAG_H(cpu) = TRUE;
     else
         PDP11_CPU_VECTOR(cpu) = 0x0008;
 }
@@ -868,7 +868,7 @@ void pdp11_cpu_command_fsub(pdp11_cpu_t *cpu, uint16_t op_code)       // 07501R
 void pdp11_cpu_command_fmul(pdp11_cpu_t *cpu, uint16_t op_code)       // 07502R
 {
     if ((PDP11_CPU_SEL(cpu) & 0x0080) == 0)
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_H) = TRUE;
+        PDP11_CPU_FLAG_H(cpu) = TRUE;
     else
         PDP11_CPU_VECTOR(cpu) = 0x0008;
 }
@@ -876,7 +876,7 @@ void pdp11_cpu_command_fmul(pdp11_cpu_t *cpu, uint16_t op_code)       // 07502R
 void pdp11_cpu_command_fdiv(pdp11_cpu_t *cpu, uint16_t op_code)       // 07503R
 {
     if ((PDP11_CPU_SEL(cpu) & 0x0080) == 0)
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_H) = TRUE;
+        PDP11_CPU_FLAG_H(cpu) = TRUE;
     else
         PDP11_CPU_VECTOR(cpu) = 0x0008;
 }
@@ -892,25 +892,25 @@ void pdp11_cpu_command_sob(pdp11_cpu_t *cpu, uint16_t op_code)       // 077R00
 
 void pdp11_cpu_command_bpl(pdp11_cpu_t *cpu, uint16_t op_code)       // 1000XX
 {
-    if (!(PDP11_CPU_FLAG(cpu, PDP11_FLAG_N)))
+    if (!(PDP11_CPU_FLAG_N(cpu)))
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_bmi(pdp11_cpu_t *cpu, uint16_t op_code)       // 1004XX
 {
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_N))
+    if (PDP11_CPU_FLAG_N(cpu))
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_bhi(pdp11_cpu_t *cpu, uint16_t op_code)       // 1010XX
 {
-    if (!(PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z)))
+    if (!(PDP11_CPU_FLAG_Z(cpu)))
         pdp11_cpu_command_bcc(cpu, op_code);
 }
 
 void pdp11_cpu_command_blos(pdp11_cpu_t *cpu, uint16_t op_code)      // 1014XX
 {
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z))
+    if (PDP11_CPU_FLAG_Z(cpu))
         pdp11_cpu_command_br(cpu, op_code);
     else
         pdp11_cpu_command_bcs(cpu, op_code);
@@ -918,25 +918,25 @@ void pdp11_cpu_command_blos(pdp11_cpu_t *cpu, uint16_t op_code)      // 1014XX
 
 void pdp11_cpu_command_bvc(pdp11_cpu_t *cpu, uint16_t op_code)       // 1020XX
 {
-    if (!(PDP11_CPU_FLAG(cpu, PDP11_FLAG_V)))
+    if (!(PDP11_CPU_FLAG_V(cpu)))
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_bvs(pdp11_cpu_t *cpu, uint16_t op_code)       // 1024XX
 {
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_V))
+    if (PDP11_CPU_FLAG_V(cpu))
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_bcc(pdp11_cpu_t *cpu, uint16_t op_code)       // 1030XX
 {
-    if (!(PDP11_CPU_FLAG(cpu, PDP11_FLAG_C)))
+    if (!(PDP11_CPU_FLAG_C(cpu)))
         pdp11_cpu_command_br(cpu, op_code);
 }
 
 void pdp11_cpu_command_bcs(pdp11_cpu_t *cpu, uint16_t op_code)       // 1034XX
 {
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C))
+    if (PDP11_CPU_FLAG_C(cpu))
         pdp11_cpu_command_br(cpu, op_code);
 }
 
@@ -954,10 +954,10 @@ void pdp11_cpu_command_clrb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1050DD
 {
     int dst_reg = op_code & 7;
     pdp11_cpu_addressing_t dst_mode = (op_code >> 3) & 7;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = TRUE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = FALSE;
+    PDP11_CPU_FLAG_C(cpu) = FALSE;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = TRUE;
+    PDP11_CPU_FLAG_N(cpu) = FALSE;
     pdp11_cpu_write_byte(cpu, dst_reg, dst_mode, FALSE);
 }
 
@@ -971,14 +971,14 @@ void pdp11_cpu_command_comb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1051DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = ~d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = TRUE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_C(cpu) = TRUE;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -997,13 +997,13 @@ void pdp11_cpu_command_incb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1052DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = (d + 1);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x7f;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = d == 0x7f;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1022,13 +1022,13 @@ void pdp11_cpu_command_decb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1053DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = d - 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = d == 0x80;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1047,14 +1047,14 @@ void pdp11_cpu_command_negb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1054DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = -d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_C(cpu) = r;
+    PDP11_CPU_FLAG_V(cpu) = d == 0x80;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1074,22 +1074,22 @@ void pdp11_cpu_command_adcb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1055DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C)) {
+    if (PDP11_CPU_FLAG_C(cpu)) {
         r = d + 1;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d == 0xff;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x7f;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+        PDP11_CPU_FLAG_C(cpu) = d == 0xff;
+        PDP11_CPU_FLAG_V(cpu) = d == 0x7f;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     }
     else {
         r = (uint8_t) d;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+        PDP11_CPU_FLAG_C(cpu) = FALSE;
+        PDP11_CPU_FLAG_V(cpu) = FALSE;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     }
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
@@ -1110,21 +1110,21 @@ void pdp11_cpu_command_sbcb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1056DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C)) {
+    if (PDP11_CPU_FLAG_C(cpu)) {
         r = d - 1;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x80;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+        PDP11_CPU_FLAG_C(cpu) = d;
+        PDP11_CPU_FLAG_V(cpu) = d == 0x80;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     }
     else {
         r = (uint8_t) d;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = d == 0x80;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-        PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+        PDP11_CPU_FLAG_V(cpu) = d == 0x80;
+        PDP11_CPU_FLAG_Z(cpu) = !r;
+        PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     }
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
@@ -1139,10 +1139,10 @@ void pdp11_cpu_command_tstb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1057DD
     int dst_reg = op_code & 7;
     pdp11_cpu_addressing_t dst_mode = (op_code >> 3) & 7;
     uint8_t d = pdp11_cpu_read_byte(cpu, dst_reg, dst_mode);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = d & 0x80;
+    PDP11_CPU_FLAG_C(cpu) = FALSE;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !d;
+    PDP11_CPU_FLAG_N(cpu) = d & 0x80;
 
 }
 
@@ -1156,14 +1156,14 @@ void pdp11_cpu_command_rorb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1060DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
-    uint8_t r = (d >> 1) | (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) ? 0x80 : 0);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r & 0x80) ^ (d & 1 ? 0x80 : 0);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    uint8_t r = (d >> 1) | (PDP11_CPU_FLAG_C(cpu) ? 0x80 : 0);
+    PDP11_CPU_FLAG_C(cpu) = d & 1;
+    PDP11_CPU_FLAG_V(cpu) = (r & 0x80) ^ (d & 1 ? 0x80 : 0);
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1182,14 +1182,14 @@ void pdp11_cpu_command_rolb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1061DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
-    uint8_t r = (d << 1) | (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) ? 1 : 0);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r ^ d) & 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    uint8_t r = (d << 1) | (PDP11_CPU_FLAG_C(cpu) ? 1 : 0);
+    PDP11_CPU_FLAG_C(cpu) = d & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = (r ^ d) & 0x80;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1208,16 +1208,16 @@ void pdp11_cpu_command_asrb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1062DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = (d >> 1) & 0xff;
     if (d & 0x80)
         r |= 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 1;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r & 0x80) ^ (d & 1 ? 0x80 : 0);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_C(cpu) = d & 1;
+    PDP11_CPU_FLAG_V(cpu) = (r & 0x80) ^ (d & 1 ? 0x80 : 0);
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1236,14 +1236,14 @@ void pdp11_cpu_command_aslb(pdp11_cpu_t *cpu, uint16_t op_code)      // 1063DD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = (d << 1) & 0xff;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d & 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (r ^ d) & 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_C(cpu) = d & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = (r ^ d) & 0x80;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1277,14 +1277,14 @@ void pdp11_cpu_command_movb(pdp11_cpu_t *cpu, uint16_t op_code)      // 11SSDD
     pdp11_cpu_addressing_t src_mode = (op_code >> 9) & 7;
     uint8_t s = pdp11_cpu_read_byte(cpu, src_reg, src_mode);
     uint16_t r = s & 0x80 ? s | 0xff00 : s & ~0xff00;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(r & 0xff);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !(r & 0xff);
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }
     else {
-        uint16_t addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        uint16_t addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         pdp11_bus_write_byte(cpu->bus, addr, (uint8_t) r);
     }
 }
@@ -1298,10 +1298,10 @@ void pdp11_cpu_command_cmpb(pdp11_cpu_t *cpu, uint16_t op_code)      // 12SSDD
     uint16_t s = pdp11_cpu_read_byte(cpu, src_reg, src_mode);
     uint16_t d = pdp11_cpu_read_byte(cpu, dst_reg, dst_mode);
     uint8_t r = s - d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = s < d;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (s ^ d) & (r & ~d) & 0x80;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(r & 0xff);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_C(cpu) = s < d;
+    PDP11_CPU_FLAG_V(cpu) = (s ^ d) & (r & ~d) & 0x80;
+    PDP11_CPU_FLAG_Z(cpu) = !(r & 0xff);
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
 }
 
 void pdp11_cpu_command_bitb(pdp11_cpu_t *cpu, uint16_t op_code)     // 13SSDD
@@ -1313,9 +1313,9 @@ void pdp11_cpu_command_bitb(pdp11_cpu_t *cpu, uint16_t op_code)     // 13SSDD
     uint8_t s = pdp11_cpu_read_byte(cpu, src_reg, src_mode);
     uint8_t d = pdp11_cpu_read_byte(cpu, dst_reg, dst_mode);
     uint8_t r = d & s;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !(r & 0xff);
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !(r & 0xff);
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
 }
 
 void pdp11_cpu_command_bicb(pdp11_cpu_t *cpu, uint16_t op_code)      // 14SSDD
@@ -1331,13 +1331,13 @@ void pdp11_cpu_command_bicb(pdp11_cpu_t *cpu, uint16_t op_code)      // 14SSDD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = d & ~s;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1359,13 +1359,13 @@ void pdp11_cpu_command_bisb(pdp11_cpu_t *cpu, uint16_t op_code)      // 15SSDD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, FALSE);
+        addr = pdp11_cpu_get_address_byte(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_byte(cpu->bus, addr);
     }
     uint8_t r = d | s;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x80;
+    PDP11_CPU_FLAG_V(cpu) = FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x80;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = (d & 0xff00) | r;
     }
@@ -1387,14 +1387,14 @@ void pdp11_cpu_command_sub(pdp11_cpu_t *cpu, uint16_t op_code)       // 16SSDD
         d = PDP11_CPU_R(cpu, dst_reg);
     }
     else {
-        addr = pdp11_cpu_get_address(cpu, dst_reg, dst_mode, TRUE);
+        addr = pdp11_cpu_get_address_word(cpu, dst_reg, dst_mode);
         d = pdp11_bus_read_word(cpu->bus, addr);
     }
     uint16_t r = d - s;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = d < s;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = (s ^ d) & (r ^ ~s) & 0x8000;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = !r;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = r & 0x8000;
+    PDP11_CPU_FLAG_C(cpu) = d < s;
+    PDP11_CPU_FLAG_V(cpu) = (s ^ d) & (r ^ ~s) & 0x8000;
+    PDP11_CPU_FLAG_Z(cpu) = !r;
+    PDP11_CPU_FLAG_N(cpu) = r & 0x8000;
     if (dst_mode == PDP11_ADDRESS_DIRECT) {
         PDP11_CPU_R(cpu, dst_reg) = r;
     }

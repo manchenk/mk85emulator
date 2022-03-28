@@ -35,7 +35,8 @@ typedef enum pdp11_cpu_addressing {
 
 struct pdp11_cpu;
 
-uint16_t pdp11_cpu_get_address(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode, bool_t is_word);
+uint16_t pdp11_cpu_get_address_word(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode);
+uint16_t pdp11_cpu_get_address_byte(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode);
 
 #ifdef __cplusplus
 }

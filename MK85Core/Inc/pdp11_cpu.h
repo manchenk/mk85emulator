@@ -36,7 +36,15 @@ extern "C" {
 #define PDP11_CPU_SP(cpu) ((cpu)->r[PDP11_CPU_SP_INDEX])
 #define PDP11_CPU_R(cpu,idx) ((cpu)->r[idx])
 #define PDP11_CPU_SEL(cpu) ((cpu)->sel)
-#define PDP11_CPU_FLAG(cpu,flg) ((cpu)->flags[flg])
+//#define PDP11_CPU_FLAG(cpu,flg) ((cpu)->flags[flg])
+#define PDP11_CPU_FLAG_C(cpu) ((cpu)->flag_c)
+#define PDP11_CPU_FLAG_V(cpu) ((cpu)->flag_v)
+#define PDP11_CPU_FLAG_Z(cpu) ((cpu)->flag_z)
+#define PDP11_CPU_FLAG_N(cpu) ((cpu)->flag_n)
+#define PDP11_CPU_FLAG_T(cpu) ((cpu)->flag_t)
+#define PDP11_CPU_FLAG_I(cpu) ((cpu)->flag_i)
+#define PDP11_CPU_FLAG_H(cpu) ((cpu)->flag_h)
+
 #define PDP11_CPU_CPC(cpu) ((cpu)->cpc)
 #define PDP11_CPU_CPS(cpu) ((cpu)->cps)
 
@@ -153,7 +161,6 @@ typedef enum {
     PDP11_FLAG_MAX = 9
 } pdp11_cpu_flags_t;
 
-
 typedef enum {
     PDP11_COMMAND_CLASS_ZERO,
     PDP11_COMMAND_CLASS_ONE,
@@ -171,7 +178,14 @@ typedef struct pdp11_cpu {
     bool_t halt;
 
     uint16_t vector;
-    bool_t flags[PDP11_FLAG_MAX];
+    //bool_t flags[PDP11_FLAG_MAX];
+    bool_t flag_c;  //PDP11_FLAG_C = 0,
+    bool_t flag_v;  //PDP11_FLAG_V = 1,
+    bool_t flag_z;  //PDP11_FLAG_Z = 2,
+    bool_t flag_n;  //PDP11_FLAG_N = 3,
+    bool_t flag_t;  //PDP11_FLAG_T = 4,
+    bool_t flag_i;  //PDP11_FLAG_I = 7,
+    bool_t flag_h;  //PDP11_FLAG_H = 8,
 
     uint16_t cpc;
     uint16_t cps;

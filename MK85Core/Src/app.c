@@ -22,6 +22,7 @@
 #include "video.h"
 #include "mk85_mb.h"
 #include "rom.h"
+#include "ram.h"
 
 static const char __attribute__((unused)) *TAG = "app";
 
@@ -48,8 +49,8 @@ static void app_init_calc(app_t *app)
 {
     app->core->bus->rom_size = sizeof(rom_bin);
     app->core->bus->rom = rom_bin;
-    app->core->bus->ram_size = MK85_DEFAULT_RAM_SIZE;
-    app->core->bus->ram = NULL;
+    app->core->bus->ram_size = sizeof(ram_bin);
+    app->core->bus->ram = ram_bin;
 
     ESP_ERROR_CHECK(mk85_mb_init(app->core));
     ESP_ERROR_CHECK(mk85_mb_reset(app->core));

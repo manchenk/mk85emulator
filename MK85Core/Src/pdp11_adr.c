@@ -21,6 +21,11 @@
 
 typedef uint16_t(*pdp11_cpu_get_address_t)(struct pdp11_cpu* cpu, int idx);
 
+static uint16_t pdp11_cpu_mode_0(struct pdp11_cpu* cpu, int idx)     // Direct
+{
+    return 0;
+}
+
 static uint16_t pdp11_cpu_mode_1_word(struct pdp11_cpu* cpu, int idx)     // Indirect
 {
     return PDP11_CPU_R(cpu, idx) & ~1;
@@ -89,7 +94,7 @@ static uint16_t pdp11_cpu_mode_7(struct pdp11_cpu* cpu, int idx)     // IndexInd
 }
 
 static pdp11_cpu_get_address_t pdp11_cpu_address_modes_word[] = {
-    NULL,
+    pdp11_cpu_mode_0,
     pdp11_cpu_mode_1_word,
     pdp11_cpu_mode_2_word,
     pdp11_cpu_mode_3,
@@ -100,7 +105,7 @@ static pdp11_cpu_get_address_t pdp11_cpu_address_modes_word[] = {
 };
 
 static pdp11_cpu_get_address_t pdp11_cpu_address_modes_byte[] = {
-    NULL,
+    pdp11_cpu_mode_0,
     pdp11_cpu_mode_1_byte,
     pdp11_cpu_mode_2_byte,
     pdp11_cpu_mode_3,
@@ -110,11 +115,14 @@ static pdp11_cpu_get_address_t pdp11_cpu_address_modes_byte[] = {
     pdp11_cpu_mode_7
 };
 
-uint16_t pdp11_cpu_get_address(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode, bool_t is_word)
+uint16_t pdp11_cpu_get_address_word(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode)
 {
-    if (mode) {
-        pdp11_cpu_get_address_t mode_function = is_word || idx > 5 ? pdp11_cpu_address_modes_word[mode] : pdp11_cpu_address_modes_byte[mode];
-        return mode_function(cpu, idx);
-    }
-    return 0;
+    pdp11_cpu_get_address_t mode_function = pdp11_cpu_address_modes_word[mode];
+    return mode_function(cpu, idx);
+}
+
+uint16_t pdp11_cpu_get_address_byte(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode)
+{
+    pdp11_cpu_get_address_t mode_function = idx > 5 ? pdp11_cpu_address_modes_word[mode] : pdp11_cpu_address_modes_byte[mode];
+    return mode_function(cpu, idx);
 }

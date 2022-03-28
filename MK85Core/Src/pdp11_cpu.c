@@ -393,25 +393,25 @@ static const pdp11_cpu_selector_item_t pdp11_cpu_selector = {
 uint16_t pdp11_cpu_get_psw(pdp11_cpu_t* cpu)
 {
     uint16_t psw = 0;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_C)) psw |= PDP11_STATUS_C;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_V)) psw |= PDP11_STATUS_V;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z)) psw |= PDP11_STATUS_Z;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_N)) psw |= PDP11_STATUS_N;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_T)) psw |= PDP11_STATUS_T;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_I)) psw |= PDP11_STATUS_I;
-    if (PDP11_CPU_FLAG(cpu, PDP11_FLAG_H)) psw |= PDP11_STATUS_H;
+    if (PDP11_CPU_FLAG_C(cpu)) psw |= PDP11_STATUS_C;
+    if (PDP11_CPU_FLAG_V(cpu)) psw |= PDP11_STATUS_V;
+    if (PDP11_CPU_FLAG_Z(cpu)) psw |= PDP11_STATUS_Z;
+    if (PDP11_CPU_FLAG_N(cpu)) psw |= PDP11_STATUS_N;
+    if (PDP11_CPU_FLAG_T(cpu)) psw |= PDP11_STATUS_T;
+    if (PDP11_CPU_FLAG_I(cpu)) psw |= PDP11_STATUS_I;
+    if (PDP11_CPU_FLAG_H(cpu)) psw |= PDP11_STATUS_H;
     return psw;
 }
 
 void pdp11_cpu_set_psw(pdp11_cpu_t* cpu, uint16_t psw)
 {
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_C) = psw & PDP11_STATUS_C ? TRUE : FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_V) = psw & PDP11_STATUS_V ? TRUE : FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_Z) = psw & PDP11_STATUS_Z ? TRUE : FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_N) = psw & PDP11_STATUS_N ? TRUE : FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_T) = psw & PDP11_STATUS_T ? TRUE : FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_I) = psw & PDP11_STATUS_I ? TRUE : FALSE;
-    PDP11_CPU_FLAG(cpu, PDP11_FLAG_H) = psw & PDP11_STATUS_H ? TRUE : FALSE;
+    PDP11_CPU_FLAG_C(cpu) = psw & PDP11_STATUS_C ? TRUE : FALSE;
+    PDP11_CPU_FLAG_V(cpu) = psw & PDP11_STATUS_V ? TRUE : FALSE;
+    PDP11_CPU_FLAG_Z(cpu) = psw & PDP11_STATUS_Z ? TRUE : FALSE;
+    PDP11_CPU_FLAG_N(cpu) = psw & PDP11_STATUS_N ? TRUE : FALSE;
+    PDP11_CPU_FLAG_T(cpu) = psw & PDP11_STATUS_T ? TRUE : FALSE;
+    PDP11_CPU_FLAG_I(cpu) = psw & PDP11_STATUS_I ? TRUE : FALSE;
+    PDP11_CPU_FLAG_H(cpu) = psw & PDP11_STATUS_H ? TRUE : FALSE;
 }
 
 
@@ -498,7 +498,7 @@ uint16_t pdp11_cpu_read_word(pdp11_cpu_t* cpu, int idx, pdp11_cpu_addressing_t m
         res = PDP11_CPU_R(cpu, idx);
     }
     else {
-        uint16_t addr = pdp11_cpu_get_address(cpu, idx, mode, TRUE);
+        uint16_t addr = pdp11_cpu_get_address_word(cpu, idx, mode);
         res = pdp11_bus_read_word(cpu->bus, addr);
     }
     return res;
@@ -511,7 +511,7 @@ uint8_t pdp11_cpu_read_byte(pdp11_cpu_t* cpu, int idx, pdp11_cpu_addressing_t mo
         res = (uint8_t)PDP11_CPU_R(cpu, idx);
     }
     else {
-        uint16_t addr = pdp11_cpu_get_address(cpu, idx, mode, FALSE);
+        uint16_t addr = pdp11_cpu_get_address_byte(cpu, idx, mode);
         res = pdp11_bus_read_byte(cpu->bus, addr);
     }
     return res;
@@ -523,7 +523,7 @@ void pdp11_cpu_write_word(pdp11_cpu_t* cpu, int idx, pdp11_cpu_addressing_t mode
         PDP11_CPU_R(cpu, idx) = val;
     }
     else {
-        uint16_t addr = pdp11_cpu_get_address(cpu, idx, mode, TRUE);
+        uint16_t addr = pdp11_cpu_get_address_word(cpu, idx, mode);
         pdp11_bus_write_word(cpu->bus, addr, val);
     }
 }
@@ -534,7 +534,7 @@ void pdp11_cpu_write_byte(pdp11_cpu_t* cpu, int idx, pdp11_cpu_addressing_t mode
         PDP11_CPU_R(cpu, idx) = (PDP11_CPU_R(cpu, idx) & 0xff00) | val;
     }
     else {
-        uint16_t addr = pdp11_cpu_get_address(cpu, idx, mode, FALSE);
+        uint16_t addr = pdp11_cpu_get_address_byte(cpu, idx, mode);
         pdp11_bus_write_byte(cpu->bus, addr, val);
     }
 }
