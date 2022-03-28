@@ -40,13 +40,13 @@ pdp11_result_t mk85_mb_init(mk85_mb_t* mb)
 {
     PDP11_CHECK_RESULT(mb ? PDP11_RESULT_OK : PDP11_RESULT_INVALID_ARG);
 
-    mb->lcd->dev = pdp11_bus_new_device(mb->bus);
+    mb->lcd->dev = *pdp11_bus_new_device(mb->bus);
     PDP11_CHECK_RESULT(mk85_lcd_init(mb->lcd));
 
-    mb->kbd->dev = pdp11_bus_new_device(mb->bus);
+    mb->kbd->dev = *pdp11_bus_new_device(mb->bus);
     PDP11_CHECK_RESULT(mk85_kbd_init(mb->kbd));
 
-    mb->ctrl->dev = pdp11_bus_new_device(mb->bus);
+    mb->ctrl->dev = *pdp11_bus_new_device(mb->bus);
     PDP11_CHECK_RESULT(mk85_ctrl_init(mb->ctrl));
 
     mb->cpu->bus = mb->bus;

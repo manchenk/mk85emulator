@@ -55,6 +55,8 @@ extern "C" {
         int rom_size;
         int ram_size;
         pdp11_device_t** device;
+        pdp11_device_t** rom_device;
+        pdp11_device_t* unk_device;
     } pdp11_bus_t;
 
     pdp11_result_t pdp11_bus_create(pdp11_bus_t** bus);
@@ -62,7 +64,7 @@ extern "C" {
     pdp11_result_t pdp11_bus_done(pdp11_bus_t* bus);
     pdp11_result_t pdp11_bus_reset(pdp11_bus_t* bus);
 
-    pdp11_device_t* pdp11_bus_new_device(pdp11_bus_t* bus);
+    pdp11_device_t** pdp11_bus_new_device(pdp11_bus_t* bus);
 
     uint16_t pdp11_bus_read_word(pdp11_bus_t* bus, uint16_t addr);
     void pdp11_bus_write_word(pdp11_bus_t* bus, uint16_t addr, uint16_t val);
