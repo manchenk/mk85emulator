@@ -19,7 +19,6 @@
 #include "pdp11_adr.h"
 #include "pdp11_cpu.h"
 
-typedef uint16_t(*pdp11_cpu_get_address_t)(struct pdp11_cpu* cpu);
 
 //static uint16_t pdp11_cpu_mode_0(struct pdp11_cpu* cpu)     // Direct
 //{
@@ -584,7 +583,7 @@ static uint16_t pdp11_cpu_mode_7_reg_7(struct pdp11_cpu* cpu)     // IndexIndire
 //    pdp11_cpu_mode_7
 //};
 
-static pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_word[] = {
+pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_word[] = {
     NULL,
     NULL,
     NULL,
@@ -651,7 +650,7 @@ static pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_word[] = {
     pdp11_cpu_mode_7_reg_7
 };
 
-static pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_byte[] = {
+pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_byte[] = {
     NULL,
     NULL,
     NULL,
@@ -730,59 +729,59 @@ static pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_byte[] = {
 //    return func(cpu);
 //}
 
-uint16_t pdp11_cpu_read_word(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr)
-{
-    pdp11_cpu_get_address_t func = pdp11_cpu_address_mode_reg_word[mode_reg];
-    if (func) {
-        *addr = func(cpu);
-        return pdp11_bus_read_word(cpu->bus, *addr);
-    }
-    else
-        return PDP11_CPU_R(cpu, mode_reg);
-}
+//uint16_t pdp11_cpu_read_word(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr)
+//{
+//    pdp11_cpu_get_address_t func = pdp11_cpu_address_mode_reg_word[mode_reg];
+//    if (func) {
+//        *addr = func(cpu);
+//        return pdp11_bus_read_word(cpu->bus, *addr);
+//    }
+//    else
+//        return PDP11_CPU_R(cpu, mode_reg);
+//}
 
-uint8_t pdp11_cpu_read_byte(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr)
-{
-    pdp11_cpu_get_address_t func = pdp11_cpu_address_mode_reg_byte[mode_reg];
-    if (func) {
-        *addr = func(cpu);
-        return pdp11_bus_read_byte(cpu->bus, *addr);
-    }
-    else
-        return PDP11_CPU_R(cpu, mode_reg);
-}
+//uint8_t pdp11_cpu_read_byte(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr)
+//{
+//    pdp11_cpu_get_address_t func = pdp11_cpu_address_mode_reg_byte[mode_reg];
+//    if (func) {
+//        *addr = func(cpu);
+//        return pdp11_bus_read_byte(cpu->bus, *addr);
+//    }
+//    else
+//        return PDP11_CPU_R(cpu, mode_reg);
+//}
 
-void pdp11_cpu_write_word(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr, uint16_t val)
-{
-    pdp11_cpu_get_address_t func = NULL;
-    if (!*addr) {
-        func = pdp11_cpu_address_mode_reg_word[mode_reg];
-        if (func) {
-            *addr = func(cpu);
-            pdp11_bus_write_word(cpu->bus, *addr, val);
-        }
-        else
-            PDP11_CPU_R(cpu, mode_reg) = val;
-    }
-    else {
-        pdp11_bus_write_word(cpu->bus, *addr, val);
-    }
-}
+//void pdp11_cpu_write_word(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr, uint16_t val)
+//{
+//    pdp11_cpu_get_address_t func = NULL;
+//    if (!*addr) {
+//        func = pdp11_cpu_address_mode_reg_word[mode_reg];
+//        if (func) {
+//            *addr = func(cpu);
+//            pdp11_bus_write_word(cpu->bus, *addr, val);
+//        }
+//        else
+//            PDP11_CPU_R(cpu, mode_reg) = val;
+//    }
+//    else {
+//        pdp11_bus_write_word(cpu->bus, *addr, val);
+//    }
+//}
 
-void pdp11_cpu_write_byte(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr, uint8_t val)
-{
-    pdp11_cpu_get_address_t func = NULL;
-    if (!*addr) {
-        func = pdp11_cpu_address_mode_reg_byte[mode_reg];
-        if (func) {
-            *addr = func(cpu);
-            pdp11_bus_write_byte(cpu->bus, *addr, val);
-        }
-        else
-            PDP11_CPU_R(cpu, mode_reg) = (PDP11_CPU_R(cpu, mode_reg) & 0xff00) | val;
-    }
-    else {
-        pdp11_bus_write_byte(cpu->bus, *addr, val);
-    }
-}
+//void pdp11_cpu_write_byte(pdp11_cpu_t* cpu, int mode_reg, uint16_t *addr, uint8_t val)
+//{
+//    pdp11_cpu_get_address_t func = NULL;
+//    if (!*addr) {
+//        func = pdp11_cpu_address_mode_reg_byte[mode_reg];
+//        if (func) {
+//            *addr = func(cpu);
+//            pdp11_bus_write_byte(cpu->bus, *addr, val);
+//        }
+//        else
+//            PDP11_CPU_R(cpu, mode_reg) = (PDP11_CPU_R(cpu, mode_reg) & 0xff00) | val;
+//    }
+//    else {
+//        pdp11_bus_write_byte(cpu->bus, *addr, val);
+//    }
+//}
 

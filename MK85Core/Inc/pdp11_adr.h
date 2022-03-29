@@ -22,6 +22,13 @@ extern "C" {
 
 #include "pdp11_types.h"
 
+struct pdp11_cpu;
+
+typedef uint16_t(*pdp11_cpu_get_address_t)(struct pdp11_cpu* cpu);
+
+extern pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_word[];
+extern pdp11_cpu_get_address_t pdp11_cpu_address_mode_reg_byte[];
+
 typedef enum pdp11_cpu_addressing {
     PDP11_ADDRESS_DIRECT = 0,
     PDP11_ADDRESS_INDIRECT,
@@ -33,15 +40,14 @@ typedef enum pdp11_cpu_addressing {
     PDP11_ADDRESS_INDEX_INDIRECT
 } pdp11_cpu_addressing_t;
 
-struct pdp11_cpu;
 
 //uint16_t pdp11_cpu_get_address_word(struct pdp11_cpu* cpu, int mode_reg);
 //uint16_t pdp11_cpu_get_address_byte(struct pdp11_cpu* cpu, int mode_reg);
 
-uint16_t pdp11_cpu_read_word(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr);
-uint8_t pdp11_cpu_read_byte(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr);
-void pdp11_cpu_write_word(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr, uint16_t val);
-void pdp11_cpu_write_byte(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr, uint8_t val);
+//uint16_t pdp11_cpu_read_word(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr);
+//uint8_t pdp11_cpu_read_byte(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr);
+//void pdp11_cpu_write_word(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr, uint16_t val);
+//void pdp11_cpu_write_byte(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr, uint8_t val);
 
 #ifdef __cplusplus
 }
