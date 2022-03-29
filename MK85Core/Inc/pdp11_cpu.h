@@ -207,10 +207,6 @@ void pdp11_cpu_set_psw(pdp11_cpu_t* cpu, uint16_t psw);
 
 pdp11_result_t pdp11_cpu_step(pdp11_cpu_t* cpu);
 
-uint16_t pdp11_cpu_read_word(pdp11_cpu_t* cpu, int idx, enum pdp11_cpu_addressing mode);
-uint8_t pdp11_cpu_read_byte(pdp11_cpu_t* cpu, int idx, enum pdp11_cpu_addressing mode);
-void pdp11_cpu_write_word(pdp11_cpu_t* cpu, int idx, enum pdp11_cpu_addressing mode, uint16_t val);
-void pdp11_cpu_write_byte(pdp11_cpu_t* cpu, int idx, enum pdp11_cpu_addressing mode, uint8_t val);
 
 #ifdef __cplusplus
 }

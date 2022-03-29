@@ -35,8 +35,13 @@ typedef enum pdp11_cpu_addressing {
 
 struct pdp11_cpu;
 
-uint16_t pdp11_cpu_get_address_word(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode);
-uint16_t pdp11_cpu_get_address_byte(struct pdp11_cpu* cpu, int idx, pdp11_cpu_addressing_t mode);
+//uint16_t pdp11_cpu_get_address_word(struct pdp11_cpu* cpu, int mode_reg);
+//uint16_t pdp11_cpu_get_address_byte(struct pdp11_cpu* cpu, int mode_reg);
+
+uint16_t pdp11_cpu_read_word(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr);
+uint8_t pdp11_cpu_read_byte(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr);
+void pdp11_cpu_write_word(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr, uint16_t val);
+void pdp11_cpu_write_byte(struct pdp11_cpu* cpu, int mode_reg, uint16_t *addr, uint8_t val);
 
 #ifdef __cplusplus
 }
