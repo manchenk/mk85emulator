@@ -158,6 +158,7 @@ static uint16_t pdp11_cpu_mode_2_reg_7_word(struct pdp11_cpu * cpu)     // AutoI
 {
     uint16_t adr = PDP11_CPU_R(cpu, 7) & ~1;
     PDP11_CPU_R(cpu, 7) += 2;
+    cpu->pc_ofs += 2;
     return adr;
 }
 
@@ -214,63 +215,96 @@ static uint16_t pdp11_cpu_mode_2_reg_7_byte(struct pdp11_cpu * cpu)     // AutoI
 {
     uint16_t adr = PDP11_CPU_R(cpu, 7) & ~1;
     PDP11_CPU_R(cpu, 7) += 2;
+    cpu->pc_ofs += 2;
     return adr;
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_0(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 0);
+    uint16_t addr = PDP11_CPU_R(cpu, 0);
     PDP11_CPU_R(cpu, 0) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_1(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 1);
+    uint16_t addr = PDP11_CPU_R(cpu, 1);
     PDP11_CPU_R(cpu, 1) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_2(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 2);
+    uint16_t addr = PDP11_CPU_R(cpu, 2);
     PDP11_CPU_R(cpu, 2) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_3(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 3);
+    uint16_t addr = PDP11_CPU_R(cpu, 3);
     PDP11_CPU_R(cpu, 3) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_4(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 4);
+    uint16_t addr = PDP11_CPU_R(cpu, 4);
     PDP11_CPU_R(cpu, 4) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_5(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 5);
+    uint16_t addr = PDP11_CPU_R(cpu, 5);
     PDP11_CPU_R(cpu, 5) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    // return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_6(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 6);
+    uint16_t addr = PDP11_CPU_R(cpu, 6);
     PDP11_CPU_R(cpu, 6) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_3_reg_7(struct pdp11_cpu* cpu)     // AutoIncrementIndirect
 {
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 7);
+    //uint16_t adr_ptr = PDP11_CPU_R(cpu, 7);
+    //PDP11_CPU_R(cpu, 7) += 2;
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
     PDP11_CPU_R(cpu, 7) += 2;
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = cpu->pc_ofs;
+    cpu->pc_ofs += 2;
+    return cpu->pc_dev->read_word(cpu->pc_dev, addr);
 }
 
 static uint16_t pdp11_cpu_mode_4_reg_0_word(struct pdp11_cpu* cpu)     // AutoDecrement
@@ -318,6 +352,7 @@ static uint16_t pdp11_cpu_mode_4_reg_6_word(struct pdp11_cpu* cpu)     // AutoDe
 static uint16_t pdp11_cpu_mode_4_reg_7_word(struct pdp11_cpu* cpu)     // AutoDecrement
 {
     PDP11_CPU_R(cpu, 7) -= 2;
+    cpu->pc_ofs -= 2;
     return PDP11_CPU_R(cpu, 7) & ~1;
 }
 
@@ -366,70 +401,106 @@ static uint16_t pdp11_cpu_mode_4_reg_6_byte(struct pdp11_cpu* cpu)     // AutoDe
 static uint16_t pdp11_cpu_mode_4_reg_7_byte(struct pdp11_cpu* cpu)     // AutoDecrement
 {
     PDP11_CPU_R(cpu, 7) -= 2;
+    cpu->pc_ofs -= 2;
     return PDP11_CPU_R(cpu, 7) & ~1;
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_0(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
     PDP11_CPU_R(cpu, 0) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 0);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = PDP11_CPU_R(cpu, 0);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_1(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
     PDP11_CPU_R(cpu, 1) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 1);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = PDP11_CPU_R(cpu, 1);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_2(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
     PDP11_CPU_R(cpu, 2) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 2);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = PDP11_CPU_R(cpu, 2);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_3(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
     PDP11_CPU_R(cpu, 3) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 3);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = PDP11_CPU_R(cpu, 3);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_4(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
     PDP11_CPU_R(cpu, 4) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 4);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = PDP11_CPU_R(cpu, 4);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_5(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
     PDP11_CPU_R(cpu, 5) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 5);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = PDP11_CPU_R(cpu, 5);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_6(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
     PDP11_CPU_R(cpu, 6) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 6);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t addr = PDP11_CPU_R(cpu, 6);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, ofs);
 }
 
 static uint16_t pdp11_cpu_mode_5_reg_7(struct pdp11_cpu* cpu)     // AutoDecrementIndirect:
 {
+    //PDP11_CPU_R(cpu, 7) -= 2;
+    //uint16_t adr_ptr = PDP11_CPU_R(cpu, 7);
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
     PDP11_CPU_R(cpu, 7) -= 2;
-    uint16_t adr_ptr = PDP11_CPU_R(cpu, 7);
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    cpu->pc_ofs -= 2;
+    return cpu->pc_dev->read_word(cpu->pc_dev, cpu->pc_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_6_reg_0(struct pdp11_cpu* cpu)     // Index
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    //uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs = dev->read_word(dev, ofs);
     return ofs + PDP11_CPU_R(cpu, 0);
 }
 
@@ -437,7 +508,11 @@ static uint16_t pdp11_cpu_mode_6_reg_1(struct pdp11_cpu* cpu)     // Index
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs = dev->read_word(dev, ofs);
     return ofs + PDP11_CPU_R(cpu, 1);
 }
 
@@ -445,7 +520,11 @@ static uint16_t pdp11_cpu_mode_6_reg_2(struct pdp11_cpu* cpu)     // Index
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs = dev->read_word(dev, ofs);
     return ofs + PDP11_CPU_R(cpu, 2);
 }
 
@@ -453,7 +532,11 @@ static uint16_t pdp11_cpu_mode_6_reg_3(struct pdp11_cpu* cpu)     // Index
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs = dev->read_word(dev, ofs);
     return ofs + PDP11_CPU_R(cpu, 3);
 }
 
@@ -461,7 +544,11 @@ static uint16_t pdp11_cpu_mode_6_reg_4(struct pdp11_cpu* cpu)     // Index
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs = dev->read_word(dev, ofs);
     return ofs + PDP11_CPU_R(cpu, 4);
 }
 
@@ -469,7 +556,11 @@ static uint16_t pdp11_cpu_mode_6_reg_5(struct pdp11_cpu* cpu)     // Index
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs = dev->read_word(dev, ofs);
     return ofs + PDP11_CPU_R(cpu, 5);
 }
 
@@ -477,15 +568,25 @@ static uint16_t pdp11_cpu_mode_6_reg_6(struct pdp11_cpu* cpu)     // Index
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs = dev->read_word(dev, ofs);
     return ofs + PDP11_CPU_R(cpu, 6);
 }
 
 static uint16_t pdp11_cpu_mode_6_reg_7(struct pdp11_cpu* cpu)     // Index
 {
-    uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
+    //uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
+    //PDP11_CPU_PC(cpu) += 2;
+    //uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    //return ofs + PDP11_CPU_R(cpu, 7);
+
+    uint16_t ofs_ptr = cpu->pc_ofs;
+    cpu->pc_ofs += 2;
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    uint16_t ofs = cpu->pc_dev->read_word(cpu->pc_dev, ofs_ptr);
     return ofs + PDP11_CPU_R(cpu, 7);
 }
 
@@ -493,72 +594,139 @@ static uint16_t pdp11_cpu_mode_7_reg_0(struct pdp11_cpu* cpu)     // IndexIndire
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 0));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 0));
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs_ptr = dev->read_word(dev, dev_ofs);
+    ofs_ptr += PDP11_CPU_R(cpu, 0);
+    dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_7_reg_1(struct pdp11_cpu* cpu)     // IndexIndirect:
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 1));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 1));
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs_ptr = dev->read_word(dev, dev_ofs);
+    ofs_ptr += PDP11_CPU_R(cpu, 1);
+    dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_7_reg_2(struct pdp11_cpu* cpu)     // IndexIndirect:
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 2));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 2));
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs_ptr = dev->read_word(dev, dev_ofs);
+    ofs_ptr += PDP11_CPU_R(cpu, 2);
+    dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_7_reg_3(struct pdp11_cpu* cpu)     // IndexIndirect:
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 3));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 3));
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs_ptr = dev->read_word(dev, dev_ofs);
+    ofs_ptr += PDP11_CPU_R(cpu, 3);
+    dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_7_reg_4(struct pdp11_cpu* cpu)     // IndexIndirect:
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 4));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 4));
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs_ptr = dev->read_word(dev, dev_ofs);
+    ofs_ptr += PDP11_CPU_R(cpu, 4);
+    dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_7_reg_5(struct pdp11_cpu* cpu)     // IndexIndirect:
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 5));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 5));
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs_ptr = dev->read_word(dev, dev_ofs);
+    ofs_ptr += PDP11_CPU_R(cpu, 5);
+    dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_7_reg_6(struct pdp11_cpu* cpu)     // IndexIndirect:
 {
     uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 6));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+//    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+//    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 6));
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    ofs_ptr = dev->read_word(dev, dev_ofs);
+    ofs_ptr += PDP11_CPU_R(cpu, 6);
+    dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, ofs_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 static uint16_t pdp11_cpu_mode_7_reg_7(struct pdp11_cpu* cpu)     // IndexIndirect:
 {
-    uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
+    //uint16_t ofs_ptr = PDP11_CPU_PC(cpu);
+    //PDP11_CPU_PC(cpu) += 2;
+    //uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
+    //uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 7));
+    //return pdp11_bus_read_word(cpu->bus, adr_ptr);
+
+    uint16_t ofs_ptr = cpu->pc_ofs;
+    cpu->pc_ofs += 2;
     PDP11_CPU_PC(cpu) += 2;
-    uint16_t ofs = pdp11_bus_read_word(cpu->bus, ofs_ptr);
-    uint16_t adr_ptr = (ofs + PDP11_CPU_R(cpu, 7));
-    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t ofs = cpu->pc_dev->read_word(cpu->pc_dev, ofs_ptr);
+    uint16_t adr_ptr = ofs + PDP11_CPU_R(cpu, 7);
+//    return pdp11_bus_read_word(cpu->bus, adr_ptr);
+    uint16_t dev_ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, adr_ptr, &dev_ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    return dev->read_word(dev, dev_ofs);
 }
 
 //static pdp11_cpu_get_address_t pdp11_cpu_address_modes_word[] = {

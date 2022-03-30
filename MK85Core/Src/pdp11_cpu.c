@@ -449,10 +449,16 @@ pdp11_result_t pdp11_cpu_reset(pdp11_cpu_t* cpu)
 {
     PDP11_CHECK_RESULT(cpu ? PDP11_RESULT_OK : PDP11_RESULT_INVALID_ARG);
     uint16_t addr = PDP11_CPU_SEL(cpu) & 0xff00;
-    uint16_t init_pc = pdp11_bus_read_word(cpu->bus, addr);
-    addr += 2;
-    uint16_t init_psw = pdp11_bus_read_word(cpu->bus, addr);
-    addr += 2;
+//    uint16_t init_pc = pdp11_bus_read_word(cpu->bus, addr);
+    uint16_t ofs;
+    pdp11_device_t* dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, addr, &ofs);
+    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+    uint16_t init_pc = dev->read_word(dev, ofs);
+//    addr += 2;
+    ofs += 2;
+    //uint16_t init_psw = pdp11_bus_read_word(cpu->bus, addr);
+    uint16_t init_psw = dev->read_word(dev, ofs);
+    //addr += 2;
 
     PDP11_CPU_PC(cpu) = init_pc;
     pdp11_cpu_set_psw(cpu, init_psw);
@@ -482,8 +488,12 @@ pdp11_result_t pdp11_cpu_step(pdp11_cpu_t* cpu)
         cpu->halt = FALSE;
     }
     else {
-        op_code = pdp11_bus_read_word(cpu->bus, PDP11_CPU_PC(cpu));
+        cpu->pc_dev = pdp11_bus_get_device(cpu->bus, PDP11_OP_READ, PDP11_CPU_PC(cpu), &cpu->pc_ofs);
+        PDP11_CHECK_ERROR(cpu->pc_dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+        op_code = cpu->pc_dev->read_word(cpu->pc_dev, cpu->pc_ofs);
+        //op_code = pdp11_bus_read_word(cpu->bus, PDP11_CPU_PC(cpu));
         PDP11_CPU_PC(cpu) += 2;
+        cpu->pc_ofs += 2;
     }
     pdp11_cpu_command_t command = pdp11_cpu_decode(op_code);
     const pdp11_cpu_command_item_t* item = pdp11_cpu_commands + command;

@@ -198,6 +198,8 @@ typedef struct pdp11_cpu {
     uint16_t vector;
 
     pdp11_bus_t* bus;
+    pdp11_device_t* pc_dev;
+    uint16_t pc_ofs;
 } pdp11_cpu_t;
 
 

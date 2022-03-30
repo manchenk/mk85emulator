@@ -169,7 +169,7 @@ pdp11_result_t pdp11_bus_reset(pdp11_bus_t* bus)
 }
 
 
-inline static pdp11_device_t* pdp11_bus_get_device(pdp11_bus_t* bus, pdp11_devop_t op, uint16_t addr, uint16_t* ofs)
+pdp11_device_t* pdp11_bus_get_device(pdp11_bus_t* bus, pdp11_devop_t op, uint16_t addr, uint16_t* ofs)
 {
     //asm volatile("nop");
     pdp11_device_t** item = addr < 0x106 ? bus->device : bus->rom_device;
@@ -186,34 +186,34 @@ inline static pdp11_device_t* pdp11_bus_get_device(pdp11_bus_t* bus, pdp11_devop
     return bus->unk_device;
 }
 
-uint16_t pdp11_bus_read_word(pdp11_bus_t* bus, uint16_t addr)
-{
-    uint16_t ofs;
-    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_READ, addr, &ofs);
-    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
-    return dev->read_word(dev, ofs);
-}
+//uint16_t pdp11_bus_read_word(pdp11_bus_t* bus, uint16_t addr)
+//{
+//    uint16_t ofs;
+//    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_READ, addr, &ofs);
+//    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+//    return dev->read_word(dev, ofs);
+//}
 
-void pdp11_bus_write_word(pdp11_bus_t* bus, uint16_t addr, uint16_t val)
-{
-    uint16_t ofs;
-    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_WRITE, addr, &ofs);
-    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
-    dev->write_word(dev, ofs, val);
-}
+//void pdp11_bus_write_word(pdp11_bus_t* bus, uint16_t addr, uint16_t val)
+//{
+//    uint16_t ofs;
+//    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_WRITE, addr, &ofs);
+//    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+//    dev->write_word(dev, ofs, val);
+//}
 
-uint8_t pdp11_bus_read_byte(pdp11_bus_t* bus, uint16_t addr)
-{
-    uint16_t ofs;
-    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_READ, addr, &ofs);
-    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
-    return dev->read_byte(dev, ofs);
-}
+//uint8_t pdp11_bus_read_byte(pdp11_bus_t* bus, uint16_t addr)
+//{
+//    uint16_t ofs;
+//    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_READ, addr, &ofs);
+//    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+//    return dev->read_byte(dev, ofs);
+//}
 
-void pdp11_bus_write_byte(pdp11_bus_t* bus, uint16_t addr, uint8_t val)
-{
-    uint16_t ofs;
-    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_WRITE, addr, &ofs);
-    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
-    dev->write_byte(dev, ofs, val);
-}
+//void pdp11_bus_write_byte(pdp11_bus_t* bus, uint16_t addr, uint8_t val)
+//{
+//    uint16_t ofs;
+//    pdp11_device_t* dev = pdp11_bus_get_device(bus, PDP11_OP_WRITE, addr, &ofs);
+//    PDP11_CHECK_ERROR(dev ? PDP11_RESULT_OK : PDP11_RESULT_FAIL);
+//    dev->write_byte(dev, ofs, val);
+//}

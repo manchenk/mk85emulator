@@ -48,6 +48,8 @@ typedef int bool_t;
 #else
 
 #ifdef DEBUG
+#include "stdio.h"
+#include "stdlib.h"
 #define PDP11_CHECK_RESULT(res) do { pdp11_result_t __r = (res);  if (__r != PDP11_RESULT_OK) return __r; } while(0);
 #define PDP11_CHECK_ERROR(res) do { pdp11_result_t __r = (res);  if (__r != PDP11_RESULT_OK) { printf("Error %d at %s:%d\n", __r, __FILE__, __LINE__); exit(-1); } } while(0);
 #else

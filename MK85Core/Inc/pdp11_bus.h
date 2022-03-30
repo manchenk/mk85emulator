@@ -66,10 +66,12 @@ extern "C" {
 
     pdp11_device_t** pdp11_bus_new_device(pdp11_bus_t* bus);
 
-    uint16_t pdp11_bus_read_word(pdp11_bus_t* bus, uint16_t addr);
-    void pdp11_bus_write_word(pdp11_bus_t* bus, uint16_t addr, uint16_t val);
-    uint8_t pdp11_bus_read_byte(pdp11_bus_t* bus, uint16_t addr);
-    void pdp11_bus_write_byte(pdp11_bus_t* bus, uint16_t addr, uint8_t val);
+    pdp11_device_t* pdp11_bus_get_device(pdp11_bus_t* bus, pdp11_devop_t op, uint16_t addr, uint16_t* ofs);
+
+//    uint16_t pdp11_bus_read_word(pdp11_bus_t* bus, uint16_t addr);
+//    void pdp11_bus_write_word(pdp11_bus_t* bus, uint16_t addr, uint16_t val);
+//    uint8_t pdp11_bus_read_byte(pdp11_bus_t* bus, uint16_t addr);
+//    void pdp11_bus_write_byte(pdp11_bus_t* bus, uint16_t addr, uint8_t val);
 
 
 #ifdef __cplusplus
