@@ -170,6 +170,10 @@ typedef enum {
     PDP11_COMMAND_CLASS_OTHER
 } pdp11_cpu_command_class_t;
 
+#define PDP11_RAW_FLAG_N 0x80000000
+#define PDP11_RAW_FLAG_Z 0x40000000
+#define PDP11_RAW_FLAG_C 0x20000000
+
 typedef struct pdp11_cpu {
     bool_t rtt;
     bool_t wait;
@@ -177,8 +181,7 @@ typedef struct pdp11_cpu {
     bool_t step;
     bool_t halt;
 
-    uint16_t vector;
-    //bool_t flags[PDP11_FLAG_MAX];
+    uint32_t raw_flags;
     bool_t flag_c;  //PDP11_FLAG_C = 0,
     bool_t flag_v;  //PDP11_FLAG_V = 1,
     bool_t flag_z;  //PDP11_FLAG_Z = 2,
@@ -192,8 +195,9 @@ typedef struct pdp11_cpu {
     uint16_t sel;
     uint16_t r[PDP11_CPU_REGISTER_NUM];
 
-    pdp11_bus_t* bus;
+    uint16_t vector;
 
+    pdp11_bus_t* bus;
 } pdp11_cpu_t;
 
 

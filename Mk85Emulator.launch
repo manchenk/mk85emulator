@@ -7,7 +7,7 @@
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.launch.ip_address_local" value="localhost"/>
     <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.launch.limit_swo_clock.enabled" value="false"/>
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.launch.limit_swo_clock.value" value=""/>
-    <stringAttribute key="com.st.stm32cube.ide.mcu.debug.launch.loadList" value="{&quot;fItems&quot;:[{&quot;fIsFromMainTab&quot;:true,&quot;fPath&quot;:&quot;Release/Mk85Emulator.elf&quot;,&quot;fProjectName&quot;:&quot;Mk85Emulator&quot;,&quot;fPerformBuild&quot;:true,&quot;fDownload&quot;:true,&quot;fLoadSymbols&quot;:true}]}"/>
+    <stringAttribute key="com.st.stm32cube.ide.mcu.debug.launch.loadList" value="{&quot;fItems&quot;:[{&quot;fIsFromMainTab&quot;:true,&quot;fPath&quot;:&quot;Debug/Mk85Emulator.elf&quot;,&quot;fProjectName&quot;:&quot;Mk85Emulator&quot;,&quot;fPerformBuild&quot;:true,&quot;fDownload&quot;:true,&quot;fLoadSymbols&quot;:true}]}"/>
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.launch.override_start_address_mode" value="default"/>
     <stringAttribute key="com.st.stm32cube.ide.mcu.debug.launch.remoteCommand" value="target remote"/>
     <booleanAttribute key="com.st.stm32cube.ide.mcu.debug.launch.startServer" value="true"/>
@@ -74,7 +74,7 @@
     <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_START_MODE" value="remote"/>
     <booleanAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN" value="true"/>
     <stringAttribute key="org.eclipse.cdt.launch.DEBUGGER_STOP_AT_MAIN_SYMBOL" value="main"/>
-    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Release/Mk85Emulator.elf"/>
+    <stringAttribute key="org.eclipse.cdt.launch.PROGRAM_NAME" value="Debug/Mk85Emulator.elf"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_ATTR" value="Mk85Emulator"/>
     <booleanAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_AUTO_ATTR" value="false"/>
     <stringAttribute key="org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR" value=""/>
@@ -85,5 +85,5 @@
         <listEntry value="4"/>
     </listAttribute>
     <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;&gt;&lt;gdbmemoryBlockExpression address=&quot;536911216&quot; label=&quot;(cpu)-&amp;gt;flags&quot;/&gt;&lt;gdbmemoryBlockExpression address=&quot;536911216&quot; label=&quot;&amp;amp;((cpu)-&amp;gt;flags[0])&quot;/&gt;&lt;gdbmemoryBlockExpression address=&quot;536911217&quot; label=&quot;&amp;amp;((cpu)-&amp;gt;flags[1])&quot;/&gt;&lt;gdbmemoryBlockExpression address=&quot;536911223&quot; label=&quot;&amp;amp;((cpu)-&amp;gt;flags[7])&quot;/&gt;&lt;gdbmemoryBlockExpression address=&quot;536911232&quot; label=&quot;(((app)-&amp;gt;core)-&amp;gt;cpu)-&amp;gt;flags&quot;/&gt;&lt;/memoryBlockExpressionList&gt;"/>
-    <stringAttribute key="process_factory_id" value="org.eclipse.cdt.dsf.gdb.GdbProcessFactory"/>
+    <stringAttribute key="process_factory_id" value="com.st.stm32cube.ide.mcu.debug.launch.HardwareDebugProcessFactory"/>
 </launchConfiguration>
