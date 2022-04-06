@@ -98,10 +98,22 @@ static void keyboard_background_draw()
 {
     int x, y;
     uint32_t *dst = (uint32_t*) LCD_FRAME_BUFFER;
-    const uint32_t *src = mk85_background;
+    const uint8_t *src = mk85_background;
+    int idx = 0;
+    uint8_t in = 0;
     for (y = 0; y < 320; ++y) {
         for (x = 0; x < 240; ++x) {
-            *dst++ = *src++ | 0xff000000;
+            if ((idx & 3) == 0)
+                in = *src++;
+            else
+                in >>= 2;
+            switch (in & 3) {
+                case 0: *dst++ = 0xff000000; break;
+                case 1: *dst++ = 0xff0000ff; break;
+                case 2: *dst++ = 0xffff0000; break;
+                case 3: *dst++ = 0xffffffff; break;
+            }
+            ++idx;
         }
     }
 
