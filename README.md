@@ -10,7 +10,7 @@ Elektronika MK-85 emulator on STM32F429I-disco board
 20 DRAW X,3.5+3.5*SIN(20*X)
 30 NEXT X
 ```
-Оригинальный МК-85 в обчном режиме - 194 сек, в режиме турбо - 34 сек. Эмулятор - 13 сек.
+Оригинальный МК-85 в нормальном режиме - 194 сек, в режиме турбо - 34 сек. Эмулятор - 10 сек.
 
 
 ![mk85-display](https://user-images.githubusercontent.com/6017384/160229789-6f42d476-02d0-49c7-b79d-7a2c6e62a9c6.jpg)
